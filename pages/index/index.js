@@ -4,51 +4,85 @@ const app = getApp()
 
 Page({
   data: {
-    motto: 'Hello World',
-    userInfo: {},
-    hasUserInfo: false,
-    canIUse: wx.canIUse('button.open-type.getUserInfo')
+    tempFilePaths:''
   },
   //事件处理函数
-  bindViewTap: function() {
-    wx.navigateTo({
-      url: '../logs/logs'
+  takePhoto:function() {
+    var that=this;
+
+    const ctx = wx.createCanvasContext('myCanvas');
+    // console.log(ctx);
+    const platform = wx.getSystemInfoSync().platform;
+    const imgWidth = 60, imgHeight = 60;
+    var base64Img = "";
+
+    wx.chooseImage({
+      success: function(res) {
+        /*console.log(res);
+        var tempFilePaths=res.tempFilePaths;
+        that.setData({
+          tempFilePaths:tempFilePaths
+        })*/
+        //生成的图片临时路径画成canvas
+        ctx.drawImage(res.tempFilePaths[0], 0, 0, imgWidth, imgHeight);
+        ctx.draw(false, () => {
+          wx.canvasGetImageData({
+            canvasId: 'myCanvas',
+            x: 0,
+            y: 0,
+            width: imgWidth,
+            height: imgHeight,
+            success: res => {
+              // console.log(res);
+              // png编码
+              let pngData = upng.encode([res.data.buffer], res.width, res.height)
+              // base64编码
+              let base64_img = wx.arrayBufferToBase64(pngData)
+              var base64_image = 'data:image/jpeg;base64,' + base64_img;
+              console.log(base64_image);
+              wx.request({
+                url: "https://mp.cn/index.php/SmallProgram/Index/base64_upload",  //此处并非真实接口地址
+                method: 'POST',
+                data: {
+                  "img_base64": base64_image
+                },
+                header: {
+                  "Content-Type": "application/x-www-form-urlencoded"
+                },
+                success: res => {
+                  console.log(res);
+                  if (res.data.code == 1) {
+                    wx.showModal({
+                      title: '',
+                      content: '上传成功',
+                      showCancel: false,
+                    })
+                  } else {
+                    wx.showModal({
+                      title: '',
+                      content: '上传失败，请重新上传',
+                      showCancel: false,
+                    })
+                  }
+
+                }
+              })
+            },
+            fail(res) {
+              console.log(res)
+            },
+          })
+        })
+      },
     })
+  },
+  sendPhoto:function(){
+    var that=this;
+    var tempFilePaths=that.data.tempFilePaths;
+    console.log(tempFilePaths)
   },
   onLoad: function () {
-    if (app.globalData.userInfo) {
-      this.setData({
-        userInfo: app.globalData.userInfo,
-        hasUserInfo: true
-      })
-    } else if (this.data.canIUse){
-      // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
-      // 所以此处加入 callback 以防止这种情况
-      app.userInfoReadyCallback = res => {
-        this.setData({
-          userInfo: res.userInfo,
-          hasUserInfo: true
-        })
-      }
-    } else {
-      // 在没有 open-type=getUserInfo 版本的兼容处理
-      wx.getUserInfo({
-        success: res => {
-          app.globalData.userInfo = res.userInfo
-          this.setData({
-            userInfo: res.userInfo,
-            hasUserInfo: true
-          })
-        }
-      })
-    }
-  },
-  getUserInfo: function(e) {
-    console.log(e)
-    app.globalData.userInfo = e.detail.userInfo
-    this.setData({
-      userInfo: e.detail.userInfo,
-      hasUserInfo: true
-    })
+    
+    
   }
 })

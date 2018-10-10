@@ -1,13 +1,13 @@
 <!--index.wxml-->
-<view class="container">
-  <view class="userinfo">
-    <button wx:if="{{!hasUserInfo && canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
-    <block wx:else>
-      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
-      <text class="userinfo-nickname">{{userInfo.nickName}}</text>
-    </block>
-  </view>
-  <view class="usermotto">
-    <text class="user-motto">{{motto}}</text>
+<!-- 上传logo start -->
+<view class='card_scanning_list_logo'>
+  <view class='card_scanning_list_logo_box'>
+    <view class='card_scanning_logo'>
+      <canvas  canvas-id='myCanvas' style="width:60px; height:60px;"></canvas>
+    </view>
+    <view class='card_scanning_logo_add' bindtap='takePhoto'>
+     拍照
+    </view>
   </view>
 </view>
+<!-- 上传logo end -->
